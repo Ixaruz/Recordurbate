@@ -112,6 +112,14 @@ class Bot:
                         # remove from proc list
                         del self.processes[idx]
 
+                    # check if deleted from config
+                    if  rec[0] not in (streamers[0] for streamers in self.config["streamers"]):
+                        # send sigint
+                        rec[1].send_signal(signal.SIGINT)
+                        rec[1].wait()
+                        self.logger.info("Stopped recording {}".format(rec[0]))
+                        del self.processes[idx]
+
                 # check to start recording
                 for idx, streamer in enumerate(self.config["streamers"]):
 
@@ -124,7 +132,7 @@ class Bot:
                         self.logger.info("Started to record {}".format(streamer[0]))
 
                         # prep args (dl bin and config)
-                        args = self.config["youtube-dl_cmd"].split(" ") + ["https://chaturbate.com/{}/".format(streamer[0]), "--config-location", self.config["youtube-dl_config"]] 
+                        args = self.config["youtube-dl_cmd"].split(" ") + ["https://chaturbate.com/{}/".format(streamer[0]), "--config-location", self.config["youtube-dl_config"]]
                         
                         # append idx and process to processes list
                         self.processes.append([streamer[0], subprocess.Popen(args, 0)])
